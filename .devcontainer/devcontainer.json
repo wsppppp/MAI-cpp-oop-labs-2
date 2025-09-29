@@ -1,0 +1,25 @@
+{
+  "name": "C++ OOP Labs (MAI)",
+  "dockerFile": "Dockerfile",
+  "context": "..",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack", // Включает C/C++ и другие полезные инструменты
+        "ms-vscode.cmake-tools", // Поддержка CMake
+        "llvm-vs-code-extensions.vscode-clangd" // Быстрый сервер для анализа кода
+      ],
+      "settings": {
+        // Указываем оболочку по умолчанию в терминале
+        "terminal.integrated.shell.linux": "/bin/bash",
+        // Указываем компилятор по умолчанию
+        "C_Cpp.default.compilerPath": "/usr/local/bin/g++",
+        // Автоматически настраивать CMake при открытии проекта
+        "cmake.configureOnOpen": true
+      }
+    }
+  },
+  // Указываем рабочую папку внутри контейнера
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "workspaceFolder": "/workspace"
+}
