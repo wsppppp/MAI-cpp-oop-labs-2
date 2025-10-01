@@ -17,7 +17,7 @@ TEST(ArrayTest, Constructors) {
 TEST(ArrayTest, Arithmetic) {
     Array a{1,2,3};
     Array b{4,5};
-    Array c = a + b; // [5,7,3]
+    Array c = a + b;
     EXPECT_EQ(c.size(), 3);
     EXPECT_EQ(c[0], 5);
     EXPECT_EQ(c[1], 7);

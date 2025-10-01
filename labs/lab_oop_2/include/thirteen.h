@@ -27,7 +27,7 @@ public:
     size_t size() const; // размер 
 
 private:
-    Array digits_;
+    Array digits;
 
     void normalize();
     void check(const Array& arr) const; // валидация

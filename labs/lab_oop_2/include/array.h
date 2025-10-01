@@ -7,13 +7,13 @@
 
 class Array {
 public:
-    Array(); // пустой массив
+    Array(); 
     Array(size_t n, unsigned char t = 0);
-    Array(const std::initializer_list<unsigned char>& t); // из массива
-    Array(const std::string& t); // из строки
+    Array(const std::initializer_list<unsigned char>& t);
+    Array(const std::string& t);
     
     Array(const Array& other); // копия
-    Array(Array&& other) noexcept; // move-конструктор
+    Array(Array&& other) noexcept; 
     virtual ~Array() noexcept;
 
     bool operator==(const Array& other) const;
@@ -26,18 +26,15 @@ public:
     Array& operator=(const Array& other) = default;
     Array& operator=(Array&& other) noexcept = default;
 
-
-    // получение через [i]
     unsigned char operator[](size_t idx) const;
 
-    // Размер массива
-    size_t size() const;
 
-    void push_back(unsigned char value); // новый элемент в конец
-    void pop_back(); // убрать последний
-    unsigned char back() const; // вернуть последний 
-    void set(size_t idx, unsigned char value); // установить по индексу
+    size_t size() const; 
+    void push_back(unsigned char value); 
+    void pop_back();
+    unsigned char back() const; 
+    void set(size_t idx, unsigned char value);
 
 protected:
-    std::vector<unsigned char> data_; // внутреннее хранилище 
+    std::vector<unsigned char> data; 
 };
