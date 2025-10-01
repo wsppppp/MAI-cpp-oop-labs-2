@@ -19,8 +19,6 @@ public:
     Thirteen operator+(const Thirteen& other) const;
     Thirteen operator-(const Thirteen& other) const;
 
-
-
     std::string to_string() const; // конвертация
 
     size_t size() const; // размер 
