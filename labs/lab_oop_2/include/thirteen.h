@@ -12,14 +12,13 @@ public:
     Thirteen(const Thirteen& other); // копия
     Thirteen(Thirteen&& other) noexcept; // move-конструктор
     ~Thirteen() noexcept;
-
     bool operator==(const Thirteen& other) const;
     bool operator!=(const Thirteen& other) const;
     bool operator<(const Thirteen& other) const;
     bool operator>(const Thirteen& other) const;
-
     Thirteen operator+(const Thirteen& other) const;
     Thirteen operator-(const Thirteen& other) const;
+
 
 
     std::string to_string() const; // конвертация

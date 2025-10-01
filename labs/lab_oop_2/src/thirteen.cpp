@@ -2,8 +2,11 @@
 #include <algorithm>
 #include <sstream>
 
+
+// 0 по умолчанию
 Thirteen::Thirteen() : digits(1, 0) {}
 
+// Валидация
 void Thirteen::check(const Array& arr) const {
     for (size_t i = 0; i < arr.size(); ++i) {
         if (arr[i] > 12)
@@ -11,40 +14,48 @@ void Thirteen::check(const Array& arr) const {
     }
 }
 
+// удаление ведущих нулей
 void Thirteen::normalize() {
-    while (digits.size() > 1 &&digits.operator[](digits.size() - 1) == 0)
+    while (digits.size() > 1 && digits.operator[](digits.size() - 1) == 0)
         digits.pop_back();
 }
 
-
+// Из строки
 Thirteen::Thirteen(const std::string& str) {
     Array arr;
     for (auto it = str.rbegin(); it != str.rend(); ++it) {
         unsigned char value;
         if (*it >= '0' && *it <= '9') {
-            value = *it -'0';
-        } else if (*it >='A' && *it <= 'C') {
+            value = *it - '0';
+        } else if (*it >= 'A' && *it <= 'C') {
             value = 10 + (*it - 'A');
         } else {
             throw std::invalid_argument("invalid digit in string");
         }
-        arr.push_back(value);
+        arr.push_back(value); 
     }
-
     check(arr);
     digits = arr;
     normalize();
 }
 
+// Из массива цифр
 Thirteen::Thirteen(const Array& arr) : digits(arr) {
     check(digits);
     normalize();
 }
 
+// копия
 Thirteen::Thirteen(const Thirteen& other) : digits(other.digits) {}
+
+// move-конструктор
 Thirteen::Thirteen(Thirteen&& other) noexcept : digits(std::move(other.digits)) {}
+
+// Деструктор
 Thirteen::~Thirteen() noexcept = default;
 
+
+// Сложение
 Thirteen Thirteen::operator+(const Thirteen& other) const {
     size_t max_size = std::max(digits.size(), other.digits.size());
     Array result(max_size, 0);
@@ -57,10 +68,11 @@ Thirteen Thirteen::operator+(const Thirteen& other) const {
         result.set(i, sum % 13);
     }
     if (carry > 0)
-        result.push_back(carry);
+        result.push_back(carry); // закидываем в конец остаток 
     return Thirteen(result);
 }
 
+// Вычитание
 Thirteen Thirteen::operator-(const Thirteen& other) const {
     if (*this < other)
         throw std::invalid_argument("result < 0 not allowed");
@@ -70,14 +82,14 @@ Thirteen Thirteen::operator-(const Thirteen& other) const {
         int a = digits[i] - borrow; // с учетом займа
         int b = (i < other.digits.size()) ? other.digits[i] : 0;
         if (a < b) {
-            a += 13;
+            a += 13; // занимаем
             borrow = 1;
         } else {
             borrow = 0;
         }
         result.set(i, static_cast<unsigned char>(a - b));
     }
-
+    // убираем ведущие нули
     while (result.size() > 1 && result.back() == 0)
         result.pop_back();
     return Thirteen(result);
@@ -89,7 +101,7 @@ bool Thirteen::operator==(const Thirteen& other) const {
 }
 
 bool Thirteen::operator!=(const Thirteen& other) const {
-    return digits != other.digits; 
+    return digits == other.digits; 
 }
 
 bool Thirteen::operator<(const Thirteen& other) const {

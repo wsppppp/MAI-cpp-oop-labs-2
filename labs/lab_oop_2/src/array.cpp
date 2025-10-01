@@ -7,6 +7,7 @@ Array::Array(const std::initializer_list<unsigned char>& t) : data(t) {}
 
 Array::Array(const std::string& t) : data() {
     data.reserve(t.size());
+    // цикл по символам строки
     for (char c : t) { 
         if (c < '0' || c > '9')
             throw std::invalid_argument("invalid character in string");
@@ -14,27 +15,9 @@ Array::Array(const std::string& t) : data() {
     }
 }
 
-
 Array::Array(const Array& other) : data(other.data) {}
-
 Array::Array(Array&& other) noexcept : data(std::move(other.data)) {}
 Array::~Array() noexcept = default;
-
-
-bool Array::operator==(const Array& other) const {
-    return data == other.data;
-}
-
-bool Array::operator!=(const Array& other) const {
-    return data != other.data;
-}
-
-bool Array::operator<(const Array& other) const {
-    return data < other.data;
-}
-bool Array::operator>(const Array& other) const {
-    return data > other.data;
-}
 
 Array Array::operator+(const Array& other) const {
     size_t max_size = std::max(data.size(), other.data.size());
@@ -58,12 +41,31 @@ Array Array::operator-(const Array& other) const {
     return res;
 }
 
+// сравнение
+
+bool Array::operator==(const Array& other) const {
+    return data == other.data;
+}
+
+bool Array::operator!=(const Array& other) const {
+    return !(*this == other);
+}
+
+bool Array::operator<(const Array& other) const {
+    return data < other.data;
+}
+bool Array::operator>(const Array& other) const {
+    return data > other.data;
+}
+
+// получение [i]
 unsigned char Array::operator[](size_t idx) const {
     if (idx >= data.size())
         throw std::out_of_range("index out of range");
     return data[idx];
 }
 
+// Размер
 size_t Array::size() const {
     return data.size();
 }
@@ -71,12 +73,14 @@ size_t Array::size() const {
 void Array::push_back(unsigned char value) {
     data.push_back(value);
 }
+
 void Array::pop_back() {
     if (data.empty()) {
         throw std::out_of_range("error: empty array");
     }
     data.pop_back();
 }
+
 unsigned char Array::back() const {
     return data.back();
 }
