@@ -1,31 +1,31 @@
 #pragma once
+#include <initializer_list>
+#include <iostream>
 #include "array.h"
-#include <string>
-#include <stdexcept>
 
 class Thirteen {
 public:
     Thirteen();
     Thirteen(const std::string& str); // из строки
-    Thirteen(const Array& arr); // из массива цифр
+    Thirteen(std::initializer_list<unsigned char>); // из списка разрядов
+    Thirteen(const Thirteen&); // копирование
+    Thirteen(Thirteen&&) noexcept; // move-конструктор
+    ~Thirteen() noexcept; // деструктор
 
-    Thirteen(const Thirteen& other); // копия
-    Thirteen(Thirteen&& other) noexcept; // move-конструктор
-    ~Thirteen() noexcept;
-    bool operator==(const Thirteen& other) const;
-    bool operator!=(const Thirteen& other) const;
-    bool operator<(const Thirteen& other) const;
-    bool operator>(const Thirteen& other) const;
-    Thirteen operator+(const Thirteen& other) const;
-    Thirteen operator-(const Thirteen& other) const;
+    unsigned char get(size_t) const; 
+    int len() const;  
 
-    std::string to_string() const; // конвертация
+    Array digits;
+    static Thirteen plus(const Thirteen&, const Thirteen&); 
+    static Thirteen sub(const Thirteen&, const Thirteen&);
 
-    size_t size() const; // размер 
+    static bool equals(const Thirteen&, const Thirteen&);        // ==
+    static bool greater(const Thirteen&, const Thirteen&);       // >
+    static bool less(const Thirteen&, const Thirteen&);          // <
+    static bool notequals(const Thirteen&, const Thirteen&);     // это !=
+    static bool equalsgreater(const Thirteen&, const Thirteen&); // >=
+    static bool equalsless(const Thirteen&, const Thirteen&);    // <=
 
 private:
-    Array digits;
-
-    void normalize();
-    void check(const Array& arr) const; // валидация
+    void normalize(); // удалить ведущие нули
 };

@@ -1,92 +1,65 @@
 #include "../include/array.h"
 
-Array::Array() : data() {}
-Array::Array(size_t n, unsigned char t) : data(n, t) {}
+Array::Array() : v() {}
 
-Array::Array(const std::initializer_list<unsigned char>& t) : data(t) {}
+Array::Array(const size_t& n, unsigned char t) : v(n, t) {
+    if (t > 12) throw std::invalid_argument("digit must be 0-12 ");
+}
 
-Array::Array(const std::string& t) : data() {
-    data.reserve(t.size());
-    // цикл по символам строки
-    for (char c : t) { 
-        if (c < '0' || c > '9')
-            throw std::invalid_argument("invalid character in string");
-        data.push_back(static_cast<unsigned char>(c - '0')); // делаем из строки цифры
+Array::Array(const std::initializer_list<unsigned char>& t) : v(t) {
+    for (unsigned char d : v)
+        if (d > 12) throw std::invalid_argument("digit must be 0-12");
+}
+
+// из строки
+Array::Array(const std::string& t) : v() {
+    for (auto it = t.rbegin(); it != t.rend(); ++it) {
+        char c = *it;
+        unsigned char digit;
+        if (c >= '0' && c <= '9')
+            digit = c - '0';
+        else if (c == 'A' || c == 'a')
+            digit = 10;
+        else if (c == 'B' || c == 'b')
+            digit = 11;
+        else if (c == 'C' || c == 'c')
+            digit = 12;
+        else
+            throw std::invalid_argument("Invalid digit in string for base 13");
+        v.push_back(digit);
     }
 }
 
-Array::Array(const Array& other) : data(other.data) {}
-Array::Array(Array&& other) noexcept : data(std::move(other.data)) {}
+// копирование
+Array::Array(const Array& other) : v(other.v) {}
+
+// move-rонструктор
+Array::Array(Array&& other) noexcept : v(std::move(other.v)) {}
+
 Array::~Array() noexcept = default;
 
-Array Array::operator+(const Array& other) const {
-    size_t max_size = std::max(data.size(), other.data.size());
-    Array res(max_size, 0);
-    for (size_t i = 0; i < max_size; ++i) {
-        unsigned char a = (i < data.size()) ? data[i] : 0;
-        unsigned char b = (i < other.data.size()) ? other.data[i] : 0;
-        res.data[i] = a + b; 
-    }
-    return res;
+void Array::push(unsigned char digit) {
+    if (digit > 12) throw std::invalid_argument("digit must be 0-12");
+    v.push_back(digit);
 }
 
-Array Array::operator-(const Array& other) const {
-    size_t max_size = std::max(data.size(), other.data.size());
-    Array res(max_size, 0);
-    for (size_t i = 0; i < max_size; ++i) {
-        unsigned char a = (i < data.size()) ? data[i] : 0; 
-        unsigned char b = (i < other.data.size()) ? other.data[i] : 0;
-        res.data[i] = (a > b) ? (a - b) : 0;
-    }
-    return res;
+void Array::pop() {
+    if (v.empty()) throw std::out_of_range("pop from empty");
+    v.pop_back();
 }
 
-// сравнение
-
-bool Array::operator==(const Array& other) const {
-    return data == other.data;
+void Array::clear() {
+    v.clear();
 }
 
-bool Array::operator!=(const Array& other) const {
-    return !(*this == other);
+unsigned char Array::get(size_t idx) const {
+    if (idx >= v.size()) throw std::out_of_range("index out of range");
+    return v[idx];
 }
 
-bool Array::operator<(const Array& other) const {
-    return data < other.data;
-}
-bool Array::operator>(const Array& other) const {
-    return data > other.data;
+size_t Array::len() const {
+    return v.size();
 }
 
-// получение [i]
-unsigned char Array::operator[](size_t idx) const {
-    if (idx >= data.size())
-        throw std::out_of_range("index out of range");
-    return data[idx];
-}
 
-// Размер
-size_t Array::size() const {
-    return data.size();
-}
 
-void Array::push_back(unsigned char value) {
-    data.push_back(value);
-}
-
-void Array::pop_back() {
-    if (data.empty()) {
-        throw std::out_of_range("error: empty array");
-    }
-    data.pop_back();
-}
-
-unsigned char Array::back() const {
-    return data.back();
-}
-
-void Array::set(size_t idx, unsigned char value) {
-    if (idx >= data.size())
-        throw std::out_of_range("index out of range in set()");
-    data[idx] = value;
-}

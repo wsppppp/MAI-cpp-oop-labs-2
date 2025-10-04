@@ -1,51 +1,31 @@
 #include "../include/thirteen.h"
-#include <algorithm>
-#include <sstream>
+#include <stdexcept>
+#include <iostream>
 
-
-// 0 по умолчанию
-Thirteen::Thirteen() : digits(1, 0) {}
-
-// Валидация
-void Thirteen::check(const Array& arr) const {
-    for (size_t i = 0; i < arr.size(); ++i) {
-        if (arr[i] > 12)
-            throw std::invalid_argument("digit out of range");
-    }
+// Конструктор по умолчанию (0)
+Thirteen::Thirteen() : digits() {
+    digits.push(0);
 }
 
-// удаление ведущих нулей
 void Thirteen::normalize() {
-    while (digits.size() > 1 && digits.operator[](digits.size() - 1) == 0)
-        digits.pop_back();
+    while (digits.len() > 1 && digits.get(digits.len() - 1) == 0)
+        digits.pop();
 }
 
-// Из строки
-Thirteen::Thirteen(const std::string& str) {
-    Array arr;
-    for (auto it = str.rbegin(); it != str.rend(); ++it) {
-        unsigned char value;
-        if (*it >= '0' && *it <= '9') {
-            value = *it - '0';
-        } else if (*it >= 'A' && *it <= 'C') {
-            value = 10 + (*it - 'A');
-        } else {
-            throw std::invalid_argument("invalid digit in string");
-        }
-        arr.push_back(value); 
+Thirteen::Thirteen(std::initializer_list<unsigned char> lst) : digits() {
+    for (auto d : lst) {
+        if (d > 12) throw std::invalid_argument("digit must be 0-12");
+        digits.push(d);
     }
-    check(arr);
-    digits = arr;
     normalize();
 }
 
-// Из массива цифр
-Thirteen::Thirteen(const Array& arr) : digits(arr) {
-    check(digits);
+// из строки
+Thirteen::Thirteen(const std::string& str) : digits(str) {
     normalize();
 }
 
-// копия
+// копирование
 Thirteen::Thirteen(const Thirteen& other) : digits(other.digits) {}
 
 // move-конструктор
@@ -55,84 +35,87 @@ Thirteen::Thirteen(Thirteen&& other) noexcept : digits(std::move(other.digits)) 
 Thirteen::~Thirteen() noexcept = default;
 
 
-// Сложение
-Thirteen Thirteen::operator+(const Thirteen& other) const {
-    size_t max_size = std::max(digits.size(), other.digits.size());
-    Array result(max_size, 0);
-    unsigned char carry = 0; 
-    for (size_t i = 0; i < max_size; ++i) {
-        unsigned char a = (i < digits.size()) ? digits[i] : 0;
-        unsigned char b = (i < other.digits.size()) ? other.digits[i] : 0;
-        unsigned char sum = a + b + carry; 
-        carry = sum / 13; 
-        result.set(i, sum % 13);
-    }
-    if (carry > 0)
-        result.push_back(carry); // закидываем в конец остаток 
-    return Thirteen(result);
+unsigned char Thirteen::get(size_t idx) const {
+    return digits.get(idx);
 }
 
-// Вычитание
-Thirteen Thirteen::operator-(const Thirteen& other) const {
-    if (*this < other)
-        throw std::invalid_argument("result < 0 not allowed");
-    Array result(digits.size(), 0);
-    unsigned char borrow = 0;
-    for (size_t i = 0; i < digits.size(); ++i) {
-        int a = digits[i] - borrow; // с учетом займа
-        int b = (i < other.digits.size()) ? other.digits[i] : 0;
-        if (a < b) {
-            a += 13; // занимаем
+int Thirteen::len() const {
+    return digits.len();
+}
+
+// сложение
+Thirteen Thirteen::plus(const Thirteen& a, const Thirteen& b) {
+    Thirteen res;
+    res.digits.clear();
+
+    size_t n = std::max(a.len(), b.len());
+    unsigned char carry = 0;
+    for (size_t i = 0; i < n; ++i) {
+        unsigned char da = (i < a.len()) ? a.get(i) : 0;
+        unsigned char db = (i < b.len()) ? b.get(i) : 0;
+        unsigned char s = da + db + carry;
+        carry = s / 13;
+        res.digits.push(s % 13);
+    }
+    if (carry) res.digits.push(carry);
+    res.normalize();
+    return res;
+}
+
+// вычитание
+Thirteen Thirteen::sub(const Thirteen& a, const Thirteen& b) {
+    if (less(a, b)) throw std::invalid_argument("error: negative result");
+    Thirteen res;
+    res.digits.clear();
+
+    unsigned char borrow = 0; // заём
+    for (size_t i =0; i < a.len(); ++i) {
+        int da = a.get(i)- borrow; // учитываем заём
+        int db = (i < b.len()) ? b.get(i) : 0;
+        if (da < db) {
+            da += 13;
             borrow = 1;
         } else {
             borrow = 0;
         }
-        result.set(i, static_cast<unsigned char>(a - b));
+        res.digits.push(static_cast<unsigned char>(da - db));
     }
-    // убираем ведущие нули
-    while (result.size() > 1 && result.back() == 0)
-        result.pop_back();
-    return Thirteen(result);
+    res.normalize();
+    return res;
 }
 
-
-bool Thirteen::operator==(const Thirteen& other) const {
-    return digits == other.digits;
+// Сравнения
+bool Thirteen::equals(const Thirteen& a, const Thirteen& b) {
+    if (a.len() != b.len()) return false;
+    for (int i = 0; i < a.len(); ++i)
+        if (a.get(i) != b.get(i)) return false;
+    return true;
 }
 
-bool Thirteen::operator!=(const Thirteen& other) const {
-    return digits == other.digits; 
-}
-
-bool Thirteen::operator<(const Thirteen& other) const {
-    if (digits.size() != other.digits.size())
-        return digits.size() < other.digits.size();
-    for (size_t i = digits.size(); i-- > 0;) {
-        if (digits[i] != other.digits[i])
-            return digits[i] < other.digits[i];
+bool Thirteen::greater(const Thirteen& a, const Thirteen& b) {
+    if (a.len() != b.len()) return a.len() > b.len();
+    for (int i = a.len() - 1; i >= 0; --i) {
+        if (a.get(i) != b.get(i)) return a.get(i) > b.get(i);
     }
     return false;
 }
 
-bool Thirteen::operator>(const Thirteen& other) const {
-    return other < *this;
-}
-
-std::string Thirteen::to_string() const {
-    if (digits.size() == 1 && digits[0] == 0)
-        return "0";
-    std::ostringstream oss; // поток для записи строки
-    for (size_t i = digits.size(); i-- > 0;) {
-        unsigned char val = digits[i];
-        if (val < 10)
-            oss << char('0' + val);
-        else
-            oss << char('A' + (val - 10));
+bool Thirteen::less(const Thirteen& a, const Thirteen& b) {
+    if (a.len() != b.len()) return a.len() < b.len();
+    for (int i = a.len() - 1; i >= 0; --i) {
+        if (a.get(i) != b.get(i)) return a.get(i) < b.get(i);
     }
-    return oss.str();
+    return false;
 }
 
-size_t Thirteen::size() const {
-    return digits.size();
+bool Thirteen::notequals(const Thirteen& a, const Thirteen& b) {
+    return !equals(a, b);
 }
 
+bool Thirteen::equalsgreater(const Thirteen& a, const Thirteen& b) {
+    return greater(a, b) || equals(a, b);
+}
+
+bool Thirteen::equalsless(const Thirteen& a, const Thirteen& b) {
+    return less(a, b) || equals(a, b);
+}
