@@ -4,6 +4,9 @@
 #include "array.h"
 
 class Thirteen {
+private:
+    void delZeroes(); // удалить ведущие нули
+
 public:
     Thirteen();
     Thirteen(const std::string& str); // из строки
@@ -16,8 +19,10 @@ public:
     int len() const;  
 
     Array digits;
-    static Thirteen plus(const Thirteen&, const Thirteen&); 
-    static Thirteen sub(const Thirteen&, const Thirteen&);
+    static Thirteen add13(const Thirteen&, const Thirteen&); 
+    static Thirteen sub13(const Thirteen&, const Thirteen&);
+
+    void print(std::ostream& out = std::cout) const;
 
     static bool equals(const Thirteen&, const Thirteen&);        // ==
     static bool greater(const Thirteen&, const Thirteen&);       // >
@@ -25,7 +30,4 @@ public:
     static bool notequals(const Thirteen&, const Thirteen&);     // это !=
     static bool equalsgreater(const Thirteen&, const Thirteen&); // >=
     static bool equalsless(const Thirteen&, const Thirteen&);    // <=
-
-private:
-    void normalize(); // удалить ведущие нули
 };
