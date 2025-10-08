@@ -4,36 +4,32 @@
 #include "array.h"
 
 class Thirteen {
-
-private:
-    void delZeroes(); // удалить ведущие нули
-
-
 public:
     Thirteen();
-    Thirteen(const std::string& str); // из строки
-    Thirteen(std::initializer_list<unsigned char>); // из списка разрядов
-    Thirteen(const Thirteen&); // копирование
-    Thirteen(Thirteen&&) noexcept; // move-конструктор
-    ~Thirteen() noexcept; // деструктор
+    Thirteen(const std::string& str);
+    Thirteen(std::initializer_list<unsigned char>);
+    Thirteen(const Thirteen&);
+    Thirteen(Thirteen&&) noexcept;
+    ~Thirteen() noexcept;
 
-    
-    unsigned char get(size_t) const; 
-    int len() const;  
-
-
-    Array digits;
-    static Thirteen add13(const Thirteen&, const Thirteen&); 
-    static Thirteen sub13(const Thirteen&, const Thirteen&);
-
+    unsigned char get(size_t) const;
+    int len() const;
+    std::string to_string() const; 
 
     void print(std::ostream& out = std::cout) const;
 
+    static Thirteen add13(const Thirteen&, const Thirteen&);
+    static Thirteen sub13(const Thirteen&, const Thirteen&);
 
-    static bool equals(const Thirteen&, const Thirteen&);        // ==
-    static bool greater(const Thirteen&, const Thirteen&);       // >
-    static bool less(const Thirteen&, const Thirteen&);          // <
-    static bool notequals(const Thirteen&, const Thirteen&);     // это !=
-    static bool equalsgreater(const Thirteen&, const Thirteen&); // >=
-    static bool equalsless(const Thirteen&, const Thirteen&);    // <=
+    static bool equals(const Thirteen&, const Thirteen&);
+    static bool greater(const Thirteen&, const Thirteen&);
+    static bool less(const Thirteen&, const Thirteen&);
+    static bool notequals(const Thirteen&, const Thirteen&);
+    static bool equalsgreater(const Thirteen&, const Thirteen&);
+    static bool equalsless(const Thirteen&, const Thirteen&);
+
+    Array digits;
+
+private:
+    void delZeroes();
 };

@@ -3,30 +3,24 @@
 
 // Универсальный тест — объединяет разные проверки
 TEST(ThirteenSuite, CreationAndBasicOps) {
-    // Из строки, из списка, из одного разряда
     Thirteen x("CBA");       // только буквы (12, 11, 10)
     Thirteen y{10, 11, 12};  // тоже только буквы, но порядок младший → старший
 
     ASSERT_EQ(x.len(), 3);
     ASSERT_EQ(y.len(), 3);
 
-    // Проверка корректности разрядов
-    EXPECT_EQ(x.get(0), 10); // младший разряд (A)
-    EXPECT_EQ(x.get(1), 11); // средний (B)
-    EXPECT_EQ(x.get(2), 12); // старший (C)
+    EXPECT_EQ(x.to_string(), "C B A");
+    EXPECT_EQ(y.to_string(), "C B A");
 
-    EXPECT_EQ(y.get(0), 10); // младший разряд (A)
-    EXPECT_EQ(y.get(1), 11); // средний (B)
-    EXPECT_EQ(y.get(2), 12); // старший (C)
-
-    // Число с одним разрядом
     Thirteen single("5");
     ASSERT_EQ(single.len(), 1);
-    EXPECT_EQ(single.get(0), 5);
+    EXPECT_EQ(single.to_string(), "5");
 
-    // Число с нулями
     Thirteen zeros("000A"); // 10
-    zeros.print(); // Просто для визуального контроля, можно убрать
+    EXPECT_EQ(zeros.to_string(), "A");
+
+    Thirteen spaced("  A   2   "); // Пустые пробелы!
+    EXPECT_EQ(spaced.to_string(), "A 2");
 
     // Проверка сравнения
     EXPECT_TRUE(Thirteen::equals(x, y));
@@ -43,45 +37,25 @@ TEST(ThirteenSuite, AddAndShow) {
     Thirteen sum = Thirteen::add13(a, b);
     Thirteen diff = Thirteen::sub13(a, b);
 
-    // Проверка суммы
-    EXPECT_EQ(sum.len(), 3);
-    EXPECT_EQ(sum.get(0), 7); // младший
-    EXPECT_EQ(sum.get(1), 0);
-    EXPECT_EQ(sum.get(2), 3); // старший
-
-    // Проверка разности
-    EXPECT_EQ(diff.len(), 2);
-    EXPECT_EQ(diff.get(0), 10); // младший
-    EXPECT_EQ(diff.get(1), 8);  // старший
-
-    // Проверка print для суммы и разности (вывод в строку)
-    std::stringstream ss_sum, ss_diff;
-    sum.print(ss_sum);
-    diff.print(ss_diff);
-    EXPECT_EQ(ss_sum.str(), "307");
-    EXPECT_EQ(ss_diff.str(), "8A");
+    EXPECT_EQ(sum.to_string(), "3 0 7");
+    EXPECT_EQ(diff.to_string(), "8 A");
 }
 
 // Тест граничных и ошибочных случаев
 TEST(ThirteenSuite, EdgeCases) {
-    // Попытка создать число с невалидным разрядом через initializer_list
     EXPECT_THROW((Thirteen{13}), std::invalid_argument);
-
-    // Попытка создать число из строки с невалидным символом
     EXPECT_THROW(Thirteen("1Z"), std::invalid_argument);
 
-    // Попытка сложить числа с одним разрядом
+    Thirteen empty_str("");
+    EXPECT_EQ(empty_str.to_string(), "0");
+
     Thirteen a("C"), b("C");
     Thirteen s = Thirteen::add13(a, b);
-    EXPECT_EQ(s.len(), 2);
-    EXPECT_EQ(s.get(0), 11); // 12+12=24 → 24%13=11
-    EXPECT_EQ(s.get(1), 1);  // 24/13=1
+    EXPECT_EQ(s.to_string(), "1 B");
 
-    // Вычитание с отрицательным результатом
     Thirteen small("1"), big("A");
     EXPECT_THROW(Thirteen::sub13(small, big), std::invalid_argument);
 
-    // Проверка сравнения для одинаковых чисел
     Thirteen x("B"), y("B");
     EXPECT_TRUE(Thirteen::equals(x, y));
     EXPECT_FALSE(Thirteen::greater(x, y));
