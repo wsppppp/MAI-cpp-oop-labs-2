@@ -5,7 +5,8 @@
 
 class Array {
 private:
-    std::vector<unsigned char> v;
+    unsigned char* data; 
+    size_t size;         
 
     void validateDigit(unsigned char d) const {
         if (d > 12) throw std::invalid_argument("digit must be 0-12");
@@ -18,12 +19,14 @@ public:
     Array(const std::string& t);
     Array(const Array& other);
     Array(Array&& other) noexcept;
+    Array(const unsigned char* arr, size_t n);
     ~Array();
-
-    void push(unsigned char digit);
-    void pop();
-    void clear();
 
     unsigned char get(size_t idx) const;
     size_t len() const;
+
+    Array copy() const;  
+    
+    void removeZeroes(); // Удаление ведущих нулей (изменяет объект)
+    Array removeZeroesCopy() const; // Удаление ведущих нулей (возвращает новый объект)
 };

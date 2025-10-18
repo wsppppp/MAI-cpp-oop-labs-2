@@ -1,32 +1,16 @@
 #include "../include/thirteen.h"
 #include <stdexcept>
-#include <iostream>
 
 
+Thirteen::Thirteen() : digits(Array()) {}
 
-Thirteen::Thirteen(const std::string& str) : digits(str) {
-    delZeroes();
-}
+Thirteen::Thirteen(const std::string& str) : digits(Array(str).removeZeroesCopy()) {}
 
+Thirteen::Thirteen(const Array& array) : digits(array.removeZeroesCopy()) {}
 
-Thirteen::Thirteen() : digits() {
-    digits.push(0);
-}
+Thirteen::Thirteen(std::initializer_list<unsigned char> lst) : digits(Array(lst).removeZeroesCopy()) {}
 
-
-Thirteen::Thirteen(std::initializer_list<unsigned char> lst) : digits() {
-    if (lst.size()== 0)
-        digits.push(0);
-    else {
-        for (auto d : lst) {
-            digits.push(d);
-        }
-    }
-    delZeroes();
-}
-
-
-Thirteen::Thirteen(const Thirteen& other) : digits(other.digits) {}
+Thirteen::Thirteen(const Thirteen& other) : digits(other.digits.copy()) {}
 
 Thirteen::Thirteen(Thirteen&& other) noexcept : digits(std::move(other.digits)) {}
 
@@ -41,47 +25,45 @@ int Thirteen::len() const {
 }
 
 std::string Thirteen::to_string() const {
+    if (len() == 0) return "0";
+
     std::string result;
-    for (int i = digits.len() - 1; i >= 0; --i) {
-        unsigned char d = digits.get(i);
+    for (size_t i = len(); i-- > 0;) {
+        unsigned char d = get(i);
         if (d < 10) result += char('0' + d);
-        else result += char('A' +(d - 10));
+        else result += char('A' + (d - 10));
         if (i > 0) result += " ";
     }
     return result;
 }
 
-
 void Thirteen::print(std::ostream& out) const {
-    out << to_string(); 
+    out << to_string();
 }
 
-// тут у нас все сравнения
+// Сравнения
 bool Thirteen::equals(const Thirteen& a, const Thirteen& b) {
     if (a.len() != b.len()) return false;
-    for (int i = 0;i < a.len(); ++i)
+    for (size_t i = 0; i < a.len(); ++i)
         if (a.get(i) != b.get(i)) return false;
     return true;
 }
 
-
 bool Thirteen::greater(const Thirteen& a, const Thirteen& b) {
     if (a.len() != b.len()) return a.len() > b.len();
-    for (int i = a.len() - 1; i >= 0; --i) {
+    for (size_t i = a.len(); i-- > 0;) {
         if (a.get(i) != b.get(i)) return a.get(i) > b.get(i);
     }
     return false;
 }
 
-
 bool Thirteen::less(const Thirteen& a, const Thirteen& b) {
     if (a.len() != b.len()) return a.len() < b.len();
-    for (int i = a.len() - 1;i >= 0; --i) {
+    for (size_t i = a.len(); i-- > 0;) {
         if (a.get(i) != b.get(i)) return a.get(i) < b.get(i);
     }
     return false;
 }
-
 
 bool Thirteen::notequals(const Thirteen& a, const Thirteen& b) {
     return !equals(a, b);
@@ -95,51 +77,65 @@ bool Thirteen::equalsless(const Thirteen& a, const Thirteen& b) {
     return less(a, b) || equals(a, b);
 }
 
-
-// сложение, как в столбик
 Thirteen Thirteen::add13(const Thirteen& a, const Thirteen& b) {
-    Thirteen res;
-    res.digits.clear();
-
-    size_t n = std::max(a.len(), b.len());
+    size_t max_len = std::max(a.len(), b.len());
     unsigned char carry = 0;
-    for (size_t i = 0; i < n; ++i) {
+    unsigned char* resultDigits = new unsigned char[max_len + 1]{};
+
+    size_t result_size = 0;
+    for (size_t i = 0; i < max_len || carry != 0; ++i) {
         unsigned char da = (i < a.len()) ? a.get(i) : 0;
         unsigned char db = (i < b.len()) ? b.get(i) : 0;
-        unsigned char s = da + db + carry;
-        carry = s / 13;
-        res.digits.push(s % 13);
+        unsigned char sum = da + db + carry;
+        resultDigits[i] = sum % 13;
+        carry = sum / 13;
+        result_size = i + 1;
     }
-    if (carry) res.digits.push(carry);
-    res.delZeroes();
-    return res;
+    // Гарантируем, что массив не пустой
+    if (result_size == 0) {
+        resultDigits[0] = 0;
+        result_size = 1;
+    }
+    Thirteen result(Array(resultDigits, result_size));
+    delete[] resultDigits;
+    return result;
 }
 
-
-// вычитание с проверкой
 Thirteen Thirteen::sub13(const Thirteen& a, const Thirteen& b) {
-    if (less(a, b)) throw std::invalid_argument("error: negative result");
-    Thirteen res;
-    res.digits.clear();
+    if (less(a, b)) {
+        throw std::invalid_argument("error: negative result");
+    }
 
-    unsigned char borrow = 0; // заём, если не хватает в разряде
-    for (size_t i =0;i <a.len(); ++i) {
-        int da = a.get(i)- borrow; // учитываем заём, который брали в предыдущем разряде
+    size_t max_len = a.len();
+    unsigned char borrow = 0;
+    unsigned char* resultDigits = new unsigned char[max_len]{};
+
+    size_t result_size = 0;
+    for (size_t i = 0; i < max_len; ++i) {
+        int da = a.get(i) - borrow;
         int db = (i < b.len()) ? b.get(i) : 0;
+
         if (da < db) {
             da += 13;
             borrow = 1;
         } else {
             borrow = 0;
         }
-        res.digits.push(static_cast<unsigned char>(da - db));
+        resultDigits[i] = static_cast<unsigned char>(da - db);
+        result_size = i + 1;
     }
-    res.delZeroes();
-    return res;
+    // Гарантируем, что массив не пустой
+    if (result_size == 0) {
+        resultDigits[0] = 0;
+        result_size = 1;
+    }
+    Thirteen result(Array(resultDigits, result_size)); 
+    delete[] resultDigits;
+    return result;
 }
 
 
-void Thirteen::delZeroes() {
-    while (digits.len() >1 && digits.get(digits.len() -1) == 0)
-        digits.pop();
+// Удаление ведущих нулей
+Thirteen Thirteen::delZeroes() const {
+    return Thirteen(digits.removeZeroesCopy());
 }

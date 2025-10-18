@@ -17,7 +17,8 @@ TEST(ThirteenSuite, CreationAndBasicOps) {
     EXPECT_EQ(single.to_string(), "5");
 
     Thirteen zeros("000A"); // 10
-    EXPECT_EQ(zeros.to_string(), "A");
+    Thirteen trimmedZeros = zeros.delZeroes();
+    EXPECT_EQ(trimmedZeros.to_string(), "A");
 
     Thirteen spaced("  A   2   "); // Пустые пробелы!
     EXPECT_EQ(spaced.to_string(), "A 2");

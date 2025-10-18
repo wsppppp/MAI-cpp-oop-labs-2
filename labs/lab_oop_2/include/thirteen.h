@@ -10,6 +10,7 @@ public:
     Thirteen(std::initializer_list<unsigned char>);
     Thirteen(const Thirteen&);
     Thirteen(Thirteen&&) noexcept;
+    Thirteen(const Array& array);
     ~Thirteen() noexcept;
 
     unsigned char get(size_t) const;
@@ -27,9 +28,7 @@ public:
     static bool notequals(const Thirteen&, const Thirteen&);
     static bool equalsgreater(const Thirteen&, const Thirteen&);
     static bool equalsless(const Thirteen&, const Thirteen&);
-
-    Array digits;
-
+    Thirteen delZeroes() const;
 private:
-    void delZeroes();
+    Array digits;
 };
