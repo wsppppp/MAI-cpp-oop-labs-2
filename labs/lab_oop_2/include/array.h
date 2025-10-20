@@ -27,6 +27,6 @@ public:
 
     Array copy() const;  
     
-    void removeZeroes(); // Удаление ведущих нулей (изменяет объект)
-    Array removeZeroesCopy() const; // Удаление ведущих нулей (возвращает новый объект)
+    void removeZeroes(); 
+    Array removeZeroesCopy() const; 
 };

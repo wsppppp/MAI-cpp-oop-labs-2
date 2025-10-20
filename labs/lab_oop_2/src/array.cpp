@@ -1,16 +1,13 @@
 #include "../include/array.h"
-#include <algorithm> // Для std::copy
+#include <algorithm>
 
-// Конструктор по умолчанию
 Array::Array() : data(new unsigned char[1]{0}), size(1) {}
 
-// Конструктор с параметрами
 Array::Array(const size_t& n, unsigned char t) : data(new unsigned char[n]), size(n) {
     validateDigit(t);
     std::fill(data, data + n, t);
 }
 
-// Конструктор с initializer_list
 Array::Array(const std::initializer_list<unsigned char>& t) : data(new unsigned char[t.size()]), size(t.size()) {
     if (t.size() == 0)
         throw std::invalid_argument("empty initializer_list not allowed");
@@ -21,7 +18,6 @@ Array::Array(const std::initializer_list<unsigned char>& t) : data(new unsigned 
     }
 }
 
-// Конструктор из строки
 Array::Array(const std::string& t) : data(nullptr), size(0) {
     if (t.empty()) {
         data = new unsigned char[1]{0};
@@ -34,7 +30,7 @@ Array::Array(const std::string& t) : data(nullptr), size(0) {
     size_t idx = 0;
     for (auto it = t.rbegin(); it != t.rend(); ++it) {
         char c = *it;
-        if (c == ' ') continue; // поддержка пробелов для уникализации
+        if (c == ' ') continue;
         unsigned char digit;
         if (c >= '0' && c <= '9')
             digit = c - '0';

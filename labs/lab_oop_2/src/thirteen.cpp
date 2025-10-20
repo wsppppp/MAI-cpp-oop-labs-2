@@ -91,7 +91,6 @@ Thirteen Thirteen::add13(const Thirteen& a, const Thirteen& b) {
         carry = sum / 13;
         result_size = i + 1;
     }
-    // Гарантируем, что массив не пустой
     if (result_size == 0) {
         resultDigits[0] = 0;
         result_size = 1;
@@ -124,7 +123,6 @@ Thirteen Thirteen::sub13(const Thirteen& a, const Thirteen& b) {
         resultDigits[i] = static_cast<unsigned char>(da - db);
         result_size = i + 1;
     }
-    // Гарантируем, что массив не пустой
     if (result_size == 0) {
         resultDigits[0] = 0;
         result_size = 1;
@@ -134,8 +132,6 @@ Thirteen Thirteen::sub13(const Thirteen& a, const Thirteen& b) {
     return result;
 }
 
-
-// Удаление ведущих нулей
 Thirteen Thirteen::delZeroes() const {
     return Thirteen(digits.removeZeroesCopy());
 }
